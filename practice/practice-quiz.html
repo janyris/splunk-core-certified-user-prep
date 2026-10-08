@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPLK-1001 Practice Quiz (103 questions)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 16px 32px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: none;
+            max-width: 520px;
+            width: 100%;
+            padding: 18px 16px 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 640px;
+        }
+
+        .quiz-header {
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .quiz-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #232323;
+            margin-bottom: 4px;
+        }
+
+        .quiz-subtitle {
+            font-size: 13px;
+            color: #9d9d9d;
+        }
+
+        .progress-text {
+            text-align: left;
+            font-size: 13px;
+            color: #9d9d9d;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #2a2a2a;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .options::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+
+        .options::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 3px;
+        }
+
+        .options::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8f8f8;
+        }
+
+        .option:hover:not(.selected):not(.disabled) {
+            border-color: #e6e6e6;
+            background: #f6f6f6;
+        }
+
+        .option.selected {
+            border-color: #d0d0d0;
+            background: #dedede;
+        }
+
+        .option.correct,
+        .option.wrong {
+            border-color: #f0f0f0;
+            background: #f8f8f8;
+        }
+
+        .option.disabled {
+            cursor: default;
+        }
+
+        .option-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-right: 10px;
+            flex-shrink: 0;
+            color: #9d9d9d;
+            width: 22px;
+        }
+
+        .option.selected .option-label {
+            color: #3a3a3a;
+        }
+
+        .option.disabled .option-text {
+            color: #bdbdbd;
+        }
+
+        .option.disabled .option-label {
+            color: #bdbdbd;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 15px;
+            color: #3a3a3a;
+        }
+
+
+        .feedback-card {
+            padding: 14px 16px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .feedback-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback-card.correct {
+            background: #bfeacb;
+        }
+
+        .feedback-card.wrong {
+            background: #fff7f7;
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .feedback-header.correct {
+            color: #697b6e;
+        }
+
+        .feedback-header.wrong {
+            color: #a42d22;
+        }
+
+        .feedback-icon {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .feedback-answer {
+            font-size: 15px;
+            color: #2a2a2a;
+        }
+
+        .feedback-text {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .feedback-card.correct .feedback-text {
+            color: #444443;
+        }
+
+        .feedback-card.wrong .feedback-text {
+            color: #2e2e2f;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 24px;
+            min-height: 52px;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #6b7280;
+            border: 1px solid #e2e2e2;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e5e5e5;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #424cf7;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(66, 76, 247, 0.25);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+
+        .completion-container {
+            text-align: center;
+            display: none;
+        }
+
+        .completion-container.show {
+            display: block;
+        }
+
+        .completion-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .completion-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .stat-card.score {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.score .stat-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-card.score .stat-value {
+            color: white;
+        }
+
+        .completion-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .hint-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #4e4e4e;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .hint-toggle .chevron {
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        .hint-toggle.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .hint-panel {
+            padding: 12px 14px;
+            background: #ebecf8;
+            border-radius: 12px;
+            display: none;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .hint-panel.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hint-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #4e4e4e;
+            margin-bottom: 6px;
+        }
+
+        .hint-text {
+            font-size: 13px;
+            color: #474749;
+            line-height: 1.5;
+        }
+
+        .hint-slot {
+            min-height: 72px;
+        }
+
+        .quiz-footer {
+            margin-top: auto;
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="quiz-title">SPLK-1001 Practice Quiz (103 questions)</div>
+            <div class="quiz-subtitle">Original practice questions · not real exam content</div>
+        </div>
+
+        <div id="quiz-content">
+            <!-- Questions will be rendered here -->
+        </div>
+
+        <div id="completion-screen" class="completion-container">
+            <div class="completion-icon">🎉</div>
+            <div class="completion-title">You did it! Quiz Complete.</div>
+            <div class="completion-subtitle">Here's how you performed</div>
+
+            <div class="stats-grid">
+                <div class="stat-card score">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score-value">0/103</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-value" id="accuracy-value">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Right</div>
+                    <div class="stat-value" id="right-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Wrong</div>
+                    <div class="stat-value" id="wrong-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Skipped</div>
+                    <div class="stat-value" id="skipped-value">0</div>
+                </div>
+            </div>
+
+            <div class="completion-buttons">
+                <button class="btn btn-secondary" onclick="reviewQuiz()">Review Quiz</button>
+                <button class="btn btn-primary" onclick="retakeQuiz()">Retake Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [{"question": "[5 · Using Basic Transforming Commands] | top 3 status by host returns…", "options": ["An error; the syntax must be limit=3", "The 3 most common status values for EACH host", "The top 3 hosts", "The 3 most common status values overall"], "correctIndex": 1, "hint": "by = per group.", "correctExplanation": "The by clause splits the results, giving a top 3 for each host. top 3 is valid shorthand for limit=3.", "wrongExplanation": "Answer: The 3 most common status values for EACH host. by = per value of that field."}, {"question": "[3 · Using Fields in Searches] In the fields sidebar, what does # next to a field name mean?", "options": ["The field is selected", "The field count is unknown", "The field is indexed", "The field contains numeric values"], "correctIndex": 3, "hint": "Its partner symbol is 'a'.", "correctExplanation": "# = numeric values. a = alphanumeric (string) values. The number to the RIGHT of a field = its count of unique values.", "wrongExplanation": "Answer: The field contains numeric values. # numeric, a string, number on the right = unique values."}, {"question": "[2 · Basic Searching] The Time Range Picker is set to 'Last 7 days', but the search string includes earliest=-4h. Which events are returned?", "options": ["Events from the last 7 days plus 4 hours", "No events, because the ranges conflict", "Only events from the last 4 hours", "Events from the last 7 days"], "correctIndex": 2, "hint": "Which one wins: the search bar or the picker?", "correctExplanation": "Time modifiers typed in the search string override the Time Range Picker.", "wrongExplanation": "Answer: Only events from the last 4 hours. Typed earliest/latest OVERRIDE the picker."}, {"question": "[7 · Creating and Using Lookups] What is the correct order to set up an automatic CSV lookup?", "options": ["Create the definition → upload the file → create the automatic lookup", "Create the automatic lookup → upload the file → create the definition", "Run inputlookup → upload the file → create the definition", "Upload the lookup table file → create the lookup definition → create the automatic lookup"], "correctIndex": 3, "hint": "You can't define what isn't uploaded.", "correctExplanation": "Settings → Lookups: 1) Lookup table files (upload) 2) Lookup definitions 3) Automatic lookups (optional).", "wrongExplanation": "Answer: Upload the lookup table file → create the lookup definition → create the automatic lookup. File → Definition → Automatic."}, {"question": "[3 · Using Fields in Searches] According to Splunk best practice, which wildcard search is MOST efficient?", "options": ["user=adm*", "user=a*m", "user=*adm*", "user=*adm"], "correctIndex": 0, "hint": "Where should the * go?", "correctExplanation": "A trailing wildcard is most efficient. Leading wildcards force Splunk to check every value. Middle wildcards can give inconsistent results.", "wrongExplanation": "Answer: user=adm*. Wildcard at the END."}, {"question": "[4 · Search Language Fundamentals] A search doesn't specify an index. Which data does it search?", "options": ["No data; an index is required", "Only the main index", "The indexes your role searches by default", "Every index in the deployment, regardless of role"], "correctIndex": 2, "hint": "It depends on your role.", "correctExplanation": "With no index specified, Splunk searches the default indexes for your role. Best practice: always specify the index.", "wrongExplanation": "Answer: The indexes your role searches by default. No index → your role's default indexes. Always specify one."}, {"question": "[6 · Creating Reports and Dashboards] Which statement about dashboard frameworks is correct?", "options": ["Dashboards are written in SPL only", "Classic dashboards use Simple XML; Dashboard Studio uses JSON", "Both use only JSON", "Classic uses JSON; Studio uses XML"], "correctIndex": 1, "hint": "Classic = older format.", "correctExplanation": "Classic dashboards are defined in Simple XML. Dashboard Studio uses JSON.", "wrongExplanation": "Answer: Classic dashboards use Simple XML; Dashboard Studio uses JSON. Classic = XML, Studio = JSON."}, {"question": "[6 · Creating Reports and Dashboards] In a report's Edit Permissions dialog, a role has neither Read nor Write checked. What can users with that role do?", "options": ["They can run it but not edit it", "They can view it but not run it", "They can edit it", "They can't see the report"], "correctIndex": 3, "hint": "Read = see and run. Write = edit.", "correctExplanation": "Read lets a role see and run the report. Write lets them edit it. With neither, the role can't see the report.", "wrongExplanation": "Answer: They can't see the report. No box = can't see it."}, {"question": "[5 · Using Basic Transforming Commands] Which search returns the 5 most common user agents?", "options": ["| top limit=5 useragent", "| stats top(useragent) 5", "| rare limit=5 useragent", "| top useragent count=5"], "correctIndex": 0, "hint": "limit=", "correctExplanation": "top returns the most common values. limit=N sets how many (default 10). You can also write top 5 useragent.", "wrongExplanation": "Answer: | top limit=5 useragent. top limit=N field."}, {"question": "[2 · Basic Searching] An analyst needs the statistics table AND the full event list from the same transforming search. Which mode?", "options": ["Real-time", "Verbose", "Smart", "Fast"], "correctIndex": 1, "hint": "Completeness over speed.", "correctExplanation": "Verbose returns all fields and the full event list even when the search has a transforming command. It's the slowest mode.", "wrongExplanation": "Answer: Verbose. Verbose = everything, slowest."}, {"question": "[5 · Using Basic Transforming Commands] | top status returns which columns by default?", "options": ["status only", "status, percent, total", "status, count, percent", "status, count"], "correctIndex": 2, "hint": "Two columns are added.", "correctExplanation": "top (and rare) add count and percent columns next to the field values, 10 rows by default.", "wrongExplanation": "Answer: status, count, percent. top adds count + percent; 10 rows."}, {"question": "[4 · Search Language Fundamentals] An eval command overwrites the existing field status. What happens to the indexed data?", "options": ["The original events are deleted", "Nothing; the change only exists in this search's results", "The sourcetype is changed", "The index is updated permanently"], "correctIndex": 1, "hint": "Search-time only.", "correctExplanation": "eval (like rename) only changes the results of the current search. Indexed data is never modified.", "wrongExplanation": "Answer: Nothing; the change only exists in this search's results. eval never changes the index."}, {"question": "[2 · Basic Searching] In what order are events listed after a search?", "options": ["By relevance score", "Alphabetical by host", "Reverse chronological (newest first)", "Chronological (oldest first)"], "correctIndex": 2, "hint": "You usually care about what just happened.", "correctExplanation": "Events are shown newest first.", "wrongExplanation": "Answer: Reverse chronological (newest first). Reverse chronological."}, {"question": "[5 · Using Basic Transforming Commands] Which function counts how many DIFFERENT users appear?", "options": ["count(user)", "values(user)", "sum(user)", "dc(user)"], "correctIndex": 3, "hint": "distinct_count.", "correctExplanation": "dc() = distinct count. count(user) counts events that have a user field, duplicates included.", "wrongExplanation": "Answer: dc(user). Unique count → dc()."}, {"question": "[6 · Creating Reports and Dashboards] Users without write permission need to re-run your report over different time ranges without editing it. What should you include when saving?", "options": ["A schedule", "An embed link", "Acceleration", "A Time Range Picker"], "correctIndex": 3, "hint": "It's an optional setting in the Save As Report dialog.", "correctExplanation": "Adding a Time Range Picker lets viewers change the time range without editing. Without it, the report always uses the original range.", "wrongExplanation": "Answer: A Time Range Picker. Time Range Picker = viewers can change the range."}, {"question": "[2 · Basic Searching] Which is NOT a display option in the Events viewer?", "options": ["Raw", "Chart", "List", "Table"], "correctIndex": 1, "hint": "Three options.", "correctExplanation": "The Events viewer offers List (the default), Raw and Table. Charts belong on the Visualization tab.", "wrongExplanation": "Answer: Chart. Events views: List, Raw, Table."}, {"question": "[4 · Search Language Fundamentals] Which of these is NOT one of the search language syntax components (search terms, commands, functions, arguments, clauses)?", "options": ["Clauses", "Arguments", "Pipes", "Functions"], "correctIndex": 2, "hint": "It separates the parts but isn't one of them.", "correctExplanation": "Splunk breaks search syntax into search terms, commands, functions, arguments and clauses. The pipe separates commands but isn't listed as a component.", "wrongExplanation": "Answer: Pipes. Components: terms, commands, functions, arguments, clauses."}, {"question": "[2 · Basic Searching] Which search mode turns OFF field discovery to return results as fast as possible?", "options": ["Real-time", "Smart", "Fast", "Verbose"], "correctIndex": 2, "hint": "The name says it.", "correctExplanation": "Fast mode disables field discovery. It returns default/indexed fields plus fields named in the search.", "wrongExplanation": "Answer: Fast. Fast = no field discovery."}, {"question": "[8 · Scheduled Reports and Alerts] A manager wants a summary email every Monday at 8:00, whether or not anything unusual happened. What should you create?", "options": ["A scheduled alert with a 'number of results > 0' trigger", "A dashboard", "A real-time alert", "A scheduled report with an email action"], "correctIndex": 3, "hint": "Runs its action EVERY time.", "correctExplanation": "A scheduled report runs its action every time it runs. An alert only acts when its trigger condition is met.", "wrongExplanation": "Answer: A scheduled report with an email action. Every time → scheduled report. Only on a condition → alert."}, {"question": "[3 · Using Fields in Searches] Status=404 returns nothing, but status=404 returns thousands of events. Why?", "options": ["Capitalized searches only run in Verbose mode", "404 must be in quotes", "Field names are case-sensitive", "Field values are case-sensitive"], "correctIndex": 2, "hint": "Name vs value.", "correctExplanation": "Field NAMES are case-sensitive, so Status is a different field from status. Field VALUES are not case-sensitive.", "wrongExplanation": "Answer: Field names are case-sensitive. Names case-sensitive, values not."}, {"question": "[3 · Using Fields in Searches] Why is status=503 better than just searching 503?", "options": ["status=503 searches every index", "There is no difference", "It is more precise and efficient; a bare 503 can also match fields like area_code=503", "Bare numbers aren't allowed in searches"], "correctIndex": 2, "hint": "Fields as filters.", "correctExplanation": "Field/value searches are more precise and efficient than keywords. A bare value matches it in any field.", "wrongExplanation": "Answer: It is more precise and efficient; a bare 503 can also match fields like area_code=503. Use field=value instead of bare values."}, {"question": "[4 · Search Language Fundamentals] Which command lists results with the highest bytes first?", "options": ["sort bytes", "sort -bytes", "sort desc=bytes", "sort +bytes"], "correctIndex": 1, "hint": "Minus = …", "correctExplanation": "- = descending. + or no sign = ascending.", "wrongExplanation": "Answer: sort -bytes. sort -field = descending."}, {"question": "[1 · Splunk Basics] A small lab runs ONE Splunk instance that handles inputs, indexing, searching and dashboards. What deployment type is this?", "options": ["Standalone", "Distributed", "Cloud", "Clustered"], "correctIndex": 0, "hint": "One box does everything.", "correctExplanation": "A standalone deployment is a single instance doing every function. Distributed splits roles across instances. Cloud is hosted and managed by a third party.", "wrongExplanation": "Answer: Standalone. Standalone = 1 instance. Distributed = roles split. Cloud = hosted."}, {"question": "[7 · Creating and Using Lookups] In | lookup http_status status OUTPUTNEW status_description, what does OUTPUTNEW do?", "options": ["Writes the results back to the CSV", "Always overwrites status_description", "Only adds status_description where the field doesn't already exist", "Creates a new lookup file"], "correctIndex": 2, "hint": "vs OUTPUT.", "correctExplanation": "OUTPUT overwrites existing values. OUTPUTNEW only fills in fields that don't already exist in the event.", "wrongExplanation": "Answer: Only adds status_description where the field doesn't already exist. OUTPUT overwrites; OUTPUTNEW fills missing."}, {"question": "[1 · Splunk Basics] Credit card numbers must be masked in events BEFORE the data leaves the source network and reaches the indexers. Which component can do this?", "options": ["License master", "Heavy forwarder", "Search head", "Universal forwarder"], "correctIndex": 1, "hint": "Which forwarder can parse and change data?", "correctExplanation": "A heavy forwarder is a full Splunk Enterprise instance, so it can parse, filter, mask and route data before forwarding it. A universal forwarder doesn't parse. Search heads only work at search time.", "wrongExplanation": "Answer: Heavy forwarder. Heavy forwarder: parse, filter, mask, route before indexing."}, {"question": "[5 · Using Basic Transforming Commands] | stats count returns 5,000 but | stats count(action) returns 4,200. Why?", "options": ["count(action) only counts unique values", "action was renamed", "800 events have no action field", "count is rounded"], "correctIndex": 2, "hint": "count(field) only counts events that…", "correctExplanation": "count counts every event. count(field) counts only events where that field exists.", "wrongExplanation": "Answer: 800 events have no action field. count(field) = events that HAVE the field."}, {"question": "[6 · Creating Reports and Dashboards] Which reports can be embedded in an external web page?", "options": ["Scheduled reports", "Pivot reports only", "Reports with a Time Range Picker", "Any report"], "correctIndex": 0, "hint": "It needs stored results.", "correctExplanation": "Only scheduled reports can be embedded.", "wrongExplanation": "Answer: Scheduled reports. Embed = scheduled reports only."}, {"question": "[6 · Creating Reports and Dashboards] Which is a FALSE statement about dashboards?", "options": ["A dashboard can't be created from search results without saving a report first", "Panels can be rearranged by dragging", "Panels can be powered by reports", "Dashboards are made up of panels"], "correctIndex": 0, "hint": "Save As → Dashboard Panel.", "correctExplanation": "You CAN create a dashboard straight from search results with Save As → Dashboard Panel. Every other statement is true.", "wrongExplanation": "Answer: A dashboard can't be created from search results without saving a report first. Dashboards can come straight from a search."}, {"question": "[3 · Using Fields in Searches] host=WEB01 and host=web01 return…", "options": ["An error", "No events for the uppercase version", "Different events, because values are case-sensitive", "The same events"], "correctIndex": 3, "hint": "It's the VALUE that differs.", "correctExplanation": "Field values are not case-sensitive. Only field names are.", "wrongExplanation": "Answer: The same events. Values: case doesn't matter."}, {"question": "[4 · Search Language Fundamentals] Which is a Splunk search best practice?", "options": ["Exclude data with NOT whenever possible", "Put wildcards at the start of terms", "Use index=* to be thorough", "Filter as early as possible in the search"], "correctIndex": 3, "hint": "Inclusion beats exclusion.", "correctExplanation": "Best practices: limit the time, specify the index, use specific terms, inclusion over exclusion, and filter early.", "wrongExplanation": "Answer: Filter as early as possible in the search. Filter early; avoid index=*, leading wildcards, NOT."}, {"question": "[2 · Basic Searching] Which search mode is the DEFAULT?", "options": ["Fast", "Verbose", "Auto", "Smart"], "correctIndex": 3, "hint": "The balanced one.", "correctExplanation": "Smart is the default. It acts like Verbose for event searches and like Fast for transforming searches.", "wrongExplanation": "Answer: Smart. Default = Smart."}, {"question": "[3 · Using Fields in Searches] You need events for uri_path values /cart.do and /cart/error.do. What does Splunk recommend?", "options": ["uri_path=/cart?", "uri_path=\"/cart.do\" OR uri_path=\"/cart/error.do\"", "uri_path=*cart*", "uri_path=\"/cart*\""], "correctIndex": 1, "hint": "Avoid wildcards that span punctuation.", "correctExplanation": "Don't use wildcards to match punctuation. Specify the exact strings with their punctuation.", "wrongExplanation": "Answer: uri_path=\"/cart.do\" OR uri_path=\"/cart/error.do\". Punctuation? List exact values; don't wildcard."}, {"question": "[2 · Basic Searching] A user types: index=web error or warn  (lowercase 'or'). What happens?", "options": ["Splunk ignores the word 'or'", "Splunk treats it as OR", "'or' is treated as a search term, so events must contain error, or, and warn", "Splunk returns a syntax error"], "correctIndex": 2, "hint": "Boolean operators must be…?", "correctExplanation": "Boolean operators must be UPPERCASE. A lowercase 'or' is just another keyword, ANDed with the others.", "wrongExplanation": "Answer: 'or' is treated as a search term, so events must contain error, or, and warn. AND/OR/NOT must be uppercase."}, {"question": "[1 · Splunk Basics] A user in New York sees every event timestamp 5 hours off from their local clock. What should they change?", "options": ["The Time Range Picker preset", "The time zone in their account Preferences", "The sourcetype of the data", "The search mode"], "correctIndex": 1, "hint": "It's a per-user setting.", "correctExplanation": "Each user sets a time zone under Preferences. Splunk shows timestamps in that zone, so timestamps line up with you when you investigate.", "wrongExplanation": "Answer: The time zone in their account Preferences. Time zone lives in user Preferences."}, {"question": "[3 · Using Fields in Searches] Which search matches the product name Dream Crusher as an exact phrase?", "options": ["product_name=Dream Crusher", "product_name=Dream*Crusher", "product_name=(Dream Crusher)", "product_name=\"Dream Crusher\""], "correctIndex": 3, "hint": "Spaces in values need…", "correctExplanation": "Values with spaces need double quotes. Without them, Splunk searches product_name=Dream AND the keyword Crusher anywhere.", "wrongExplanation": "Answer: product_name=\"Dream Crusher\". Quotes for values with spaces."}, {"question": "[3 · Using Fields in Searches] In Fast mode, a field you saw earlier isn't in the sidebar anymore. Why?", "options": ["The field is over the 20% threshold", "Fast mode disables field discovery; only default fields and fields named in the search are shown", "The field was deleted from the index", "Fast mode only shows numeric fields"], "correctIndex": 1, "hint": "What does Fast mode trade for speed?", "correctExplanation": "Fast mode skips field discovery. Name the field in the search, or use Smart/Verbose mode.", "wrongExplanation": "Answer: Fast mode disables field discovery; only default fields and fields named in the search are shown. Fast = no field discovery."}, {"question": "[3 · Using Fields in Searches] A field appears in only 12% of your results and is NOT listed under Interesting Fields. How do you find it?", "options": ["It can't be found", "Click All Fields", "Switch to Fast mode", "Rename the field"], "correctIndex": 1, "hint": "Interesting = at least 20%.", "correctExplanation": "Interesting Fields only shows fields in at least 20% of events. All Fields lists every field, including non-interesting ones, and lets you select it.", "wrongExplanation": "Answer: Click All Fields. <20% → All Fields."}, {"question": "[2 · Basic Searching] You want a teammate to see your search results tomorrow WITHOUT re-running the search. What should you do?", "options": ["Save the search as an alert", "Switch to Fast mode", "Job → Edit Job Settings: extend the lifetime and share the link", "Send the job to the background"], "correctIndex": 2, "hint": "Lifetime + permissions + link all live in one dialog.", "correctExplanation": "Edit Job Settings lets you change read permissions, extend the job lifetime (to 7 days), and copy a link to the job.", "wrongExplanation": "Answer: Job → Edit Job Settings: extend the lifetime and share the link. Edit Job Settings = permissions, lifetime, shareable link."}, {"question": "[8 · Scheduled Reports and Alerts] Which role, by default, is the minimum needed to create alerts?", "options": ["Alerting", "Admin", "Power", "User"], "correctIndex": 2, "hint": "Middle role.", "correctExplanation": "The Power role can create alerts and share knowledge objects. The User role can't. Admin can, but it isn't the minimum.", "wrongExplanation": "Answer: Power. Alerts need Power (minimum)."}, {"question": "[5 · Using Basic Transforming Commands] How many rows does | stats count by src_ip return?", "options": ["Ten rows", "One row per event", "One row per unique src_ip", "Exactly one row"], "correctIndex": 2, "hint": "What does by do?", "correctExplanation": "With a by clause, stats returns one row per distinct value. Without by, it returns a single row.", "wrongExplanation": "Answer: One row per unique src_ip. by → one row per value; no by → one row."}, {"question": "[4 · Search Language Fundamentals] By default, how many results does sort return?", "options": ["10", "All results", "10,000", "100"], "correctIndex": 2, "hint": "sort 0 returns all.", "correctExplanation": "sort's default limit is 10,000 results. sort 0 field returns all of them.", "wrongExplanation": "Answer: 10,000. sort default 10,000; sort 0 = all."}, {"question": "[2 · Basic Searching] A search will take a long time, and you want to keep working on other searches while it finishes. Which Job menu option?", "options": ["Delete Job", "Edit Job Settings", "Inspect Job", "Send Job to Background"], "correctIndex": 3, "hint": "Background.", "correctExplanation": "Send Job to Background keeps the job running while you do other work.", "wrongExplanation": "Answer: Send Job to Background. Background = keep running while you work."}, {"question": "[7 · Creating and Using Lookups] Firewall events contain an employee ID. You want each event enriched with the employee's department from a CSV file. What should you use?", "options": ["The rename command", "A lookup", "A new index", "The eval command"], "correctIndex": 1, "hint": "External data added at search time.", "correctExplanation": "Lookups add fields from an external table to events at search time, by matching a field that exists in both.", "wrongExplanation": "Answer: A lookup. Enrich from an external table → lookup."}, {"question": "[5 · Using Basic Transforming Commands] You want the LEAST common source IPs to spot unusual activity. Which command?", "options": ["sort", "rare", "top", "dedup"], "correctIndex": 1, "hint": "The opposite of top.", "correctExplanation": "rare finds the least frequent values. It has the same options as top.", "wrongExplanation": "Answer: rare. Least common → rare."}, {"question": "[3 · Using Fields in Searches] In the fields sidebar, what does the number to the RIGHT of a field name show?", "options": ["How many unique values the field has", "How many events contain the field", "The field's position in the table", "The percentage of events with the field"], "correctIndex": 0, "hint": "Unique…", "correctExplanation": "It's the count of distinct values for that field in the results.", "wrongExplanation": "Answer: How many unique values the field has. Right-side number = unique value count."}, {"question": "[4 · Search Language Fundamentals] Which eval expression creates a field label like 'IP-10.1.1.5' from clientip?", "options": ["eval label=\"IP-\".clientip", "eval label=\"IP-\"|clientip", "eval label=IP-clientip", "eval label=\"IP-\" AND clientip"], "correctIndex": 0, "hint": "The concatenation operator is a period.", "correctExplanation": "In eval, the period (.) concatenates strings. String literals go in double quotes.", "wrongExplanation": "Answer: eval label=\"IP-\".clientip. eval concatenation = ."}, {"question": "[2 · Basic Searching] Which results tab groups events that share a similar structure?", "options": ["Patterns", "Events", "Visualization", "Statistics"], "correctIndex": 0, "hint": "Four tabs: Events, Patterns, Statistics, Visualization.", "correctExplanation": "The Patterns tab shows the most common patterns among the returned events.", "wrongExplanation": "Answer: Patterns. Patterns = similar-structure groups."}, {"question": "[3 · Using Fields in Searches] What qualifies a field as an 'Interesting Field'?", "options": ["It has more than 10 unique values", "It was extracted at index time", "It appears in at least 20% of the events", "It appears in every event"], "correctIndex": 2, "hint": "A percentage.", "correctExplanation": "Interesting fields are extracted fields present in at least 20% of the resulting events.", "wrongExplanation": "Answer: It appears in at least 20% of the events. ≥ 20% of events."}, {"question": "[2 · Basic Searching] What does earliest=-1d@d latest=@d return?", "options": ["Yesterday, from midnight to midnight", "Today from midnight until now", "The last 24 hours up to now", "The last 2 days"], "correctIndex": 0, "hint": "@d snaps DOWN to midnight.", "correctExplanation": "-1d@d = go back 1 day, then snap down to midnight (start of yesterday). @d = midnight at the start of today. Together: all of yesterday.", "wrongExplanation": "Answer: Yesterday, from midnight to midnight. -1d@d to @d = yesterday. -24h to now = last 24 hours."}, {"question": "[6 · Creating Reports and Dashboards] Which visualization best shows a trend over the last 7 days?", "options": ["Single value", "Pie chart", "Radial gauge", "Line chart"], "correctIndex": 3, "hint": "Time on the x-axis.", "correctExplanation": "Line (or area) charts show trends over time, usually from timechart. Pies show parts of a whole. Single value and gauges show one number.", "wrongExplanation": "Answer: Line chart. Trend over time → line chart."}, {"question": "[8 · Scheduled Reports and Alerts] Security wants a notification whenever there are more than 20 failed logins within any 5-minute window, monitored continuously. Which alert setup?", "options": ["A real-time alert with a rolling 5-minute window and Number of Results > 20", "A scheduled alert that runs daily", "A scheduled report with email", "A real-time alert with per-result triggering and no condition"], "correctIndex": 0, "hint": "Continuous + time window.", "correctExplanation": "A real-time alert with a rolling time window fires when the count condition is met within the window. Scheduled checks would be delayed.", "wrongExplanation": "Answer: A real-time alert with a rolling 5-minute window and Number of Results > 20. Count within a window, continuously → real-time rolling window."}, {"question": "[6 · Creating Reports and Dashboards] You save a search directly as a dashboard panel without saving it as a report first. What kind of panel is created?", "options": ["A cloned panel", "A report panel", "An inline search panel", "A prebuilt panel"], "correctIndex": 2, "hint": "Where is the search stored?", "correctExplanation": "The search is stored inside the dashboard: an inline search panel.", "wrongExplanation": "Answer: An inline search panel. Straight to dashboard = inline panel."}, {"question": "[4 · Search Language Fundamentals] What does | fields host status do (no + or -)?", "options": ["Removes host and status", "Keeps only host and status (plus internal _raw and _time)", "Renames host to status", "Shows host and status as a chart"], "correctIndex": 1, "hint": "Default sign.", "correctExplanation": "With no sign, fields defaults to + (include). _raw and _time stay unless you remove them explicitly.", "wrongExplanation": "Answer: Keeps only host and status (plus internal _raw and _time). No sign = +."}, {"question": "[3 · Using Fields in Searches] Which field is created at INDEX time for every event?", "options": ["action", "sourcetype", "clientip", "status"], "correctIndex": 1, "hint": "Default metadata fields.", "correctExplanation": "host, source, sourcetype and index (plus _time and _raw) are created at index time. action, clientip and status are extracted at search time.", "wrongExplanation": "Answer: sourcetype. Index-time: host, source, sourcetype, index, _time, _raw."}, {"question": "[2 · Basic Searching] What is the quickest way to see which hosts, sources and sourcetypes exist in your Splunk deployment?", "options": ["Check the Jobs page", "Run index=* and scroll", "Open Settings → Indexes", "Click Data Summary"], "correctIndex": 3, "hint": "It's under 'How to Search'.", "correctExplanation": "Data Summary shows three tabs, Hosts, Sources and Sourcetypes. It's the quickest overview of the data present.", "wrongExplanation": "Answer: Click Data Summary. Data Summary = Hosts / Sources / Sourcetypes."}, {"question": "[1 · Splunk Basics] A server team needs to install a lightweight agent on 300 web servers. Its only job is to collect the logs and send them to the indexers. Which component should they deploy?", "options": ["Universal forwarder", "Search head", "Deployment server", "Heavy forwarder"], "correctIndex": 0, "hint": "Lightweight + just collect and send.", "correctExplanation": "A universal forwarder is the lightweight agent Splunk recommends for collecting and sending data. It doesn't parse. A heavy forwarder is a full Splunk instance, more than this job needs.", "wrongExplanation": "Answer: Universal forwarder. Universal forwarder = lightweight collect-and-send. Heavy forwarder = full instance that can parse, filter and route."}, {"question": "[2 · Basic Searching] How does Splunk evaluate: index=web error OR warn critical", "options": ["Events with error OR warn OR critical", "Events with critical AND (error OR warn)", "Events with error, warn and critical", "Events with error OR (warn AND critical)"], "correctIndex": 1, "hint": "Order: ( ) → NOT → OR → AND.", "correctExplanation": "In the base search, OR is evaluated before AND. So error OR warn is grouped first, then ANDed with critical. Use parentheses to be explicit.", "wrongExplanation": "Answer: Events with critical AND (error OR warn). Order is ( ) → NOT → OR → AND."}, {"question": "[3 · Using Fields in Searches] Which internal field holds the complete original text of an event?", "options": ["punct", "_time", "_raw", "source"], "correctIndex": 2, "hint": "Internal fields start with _.", "correctExplanation": "_raw is the full raw event. _time is its timestamp.", "wrongExplanation": "Answer: _raw. _raw = original text."}, {"question": "[6 · Creating Reports and Dashboards] What is Splunk's recommended naming convention for dashboards and other knowledge objects?", "options": ["Group_Object_Description", "Description_Group_Object", "Owner_Date_Object", "Object_Group_Description"], "correctIndex": 0, "hint": "Business unit first.", "correctExplanation": "Group_Object_Description, e.g. Sales_Dashboard_Daily_performance.", "wrongExplanation": "Answer: Group_Object_Description. Group_Object_Description."}, {"question": "[5 · Using Basic Transforming Commands] Which search returns average bytes per host in a column named avg_bytes?", "options": ["| eval avg(bytes) by host", "| stats avg(bytes) AS avg_bytes by host", "| stats avg_bytes by host", "| top avg(bytes) by host"], "correctIndex": 1, "hint": "Function, AS, by.", "correctExplanation": "stats (field) AS  by  computes and renames the result per group.", "wrongExplanation": "Answer: | stats avg(bytes) AS avg_bytes by host. stats fn(field) AS name by group."}, {"question": "[5 · Using Basic Transforming Commands] Which function returns the list of UNIQUE values of a field?", "options": ["values()", "dc()", "count()", "list()"], "correctIndex": 0, "hint": "One is unique and sorted; the other keeps everything.", "correctExplanation": "values() returns unique values, sorted. list() returns all values in order, duplicates included.", "wrongExplanation": "Answer: values(). values = unique; list = all."}, {"question": "[6 · Creating Reports and Dashboards] Which is NOT one of the ways to create a report in Splunk Web?", "options": ["Uploading a CSV lookup", "Saving a Pivot as a report", "Settings → Searches, reports, and alerts → New Report", "Save As → Report from Search"], "correctIndex": 0, "hint": "Lesson 200.6 lists four ways.", "correctExplanation": "The four ways: save a search, save a pivot, Settings → New Report, or convert an inline-search dashboard panel. Uploading a CSV creates a lookup table file.", "wrongExplanation": "Answer: Uploading a CSV lookup. 4 ways: Search, Pivot, Settings, dashboard panel."}, {"question": "[6 · Creating Reports and Dashboards] Which Add Panel option reuses a saved report as a dashboard panel?", "options": ["New", "Add Prebuilt Panel", "New from Report", "Clone from Dashboard"], "correctIndex": 2, "hint": "The options: New, New from Report, Clone from Dashboard, Add Prebuilt Panel.", "correctExplanation": "New from Report lets you pick a saved report, preview it, and add it to the dashboard.", "wrongExplanation": "Answer: New from Report. Saved report → New from Report."}, {"question": "[2 · Basic Searching] A coworker opens the link to your ad hoc search job 2 hours after you ran it, and the job is gone. Why?", "options": ["Jobs expire after exactly 1 hour", "Search jobs are kept for 10 minutes by default", "Job links only work for Admin users", "Search jobs are deleted when you log out"], "correctIndex": 1, "hint": "Default job lifetime.", "correctExplanation": "An ad hoc search job is kept for 10 minutes by default. Extend it, up to 7 days, with Job → Edit Job Settings.", "wrongExplanation": "Answer: Search jobs are kept for 10 minutes by default. Job lifetime: 10 min default, up to 7 days."}, {"question": "[3 · Using Fields in Searches] You click a field name in the fields sidebar. Which report is offered there?", "options": ["Top values by time", "Events with rare value fields", "Pivot by sourcetype", "Scheduled alert"], "correctIndex": 0, "hint": "Top values, Top values by time, Rare values, Events with this field.", "correctExplanation": "The field window offers Top values, Top values by time, Rare values and Events with this field. Choosing one adds a transforming command to your search.", "wrongExplanation": "Answer: Top values by time. Field window reports: Top values (by time), Rare values, Events with this field."}, {"question": "[3 · Using Fields in Searches] You want every event EXCEPT those where src is 10.1.1.1, including events that have no src field at all. Which search?", "options": ["src=!10.1.1.1", "src NOT 10.1.1.1", "src!=10.1.1.1", "NOT src=10.1.1.1"], "correctIndex": 3, "hint": "Which one keeps events missing the field?", "correctExplanation": "NOT src=x returns everything except matches, including events without a src field. src!=x only returns events that HAVE src with a different value.", "wrongExplanation": "Answer: NOT src=10.1.1.1. != drops events without the field; NOT keeps them."}, {"question": "[8 · Scheduled Reports and Alerts] By default, how long are triggered-alert records kept on the Triggered Alerts page?", "options": ["7 days", "30 days", "10 minutes", "24 hours"], "correctIndex": 3, "hint": "The 'Expires' setting.", "correctExplanation": "Triggered alert records expire after 24 hours by default. You can change this per alert.", "wrongExplanation": "Answer: 24 hours. Triggered alerts: 24 h."}, {"question": "[4 · Search Language Fundamentals] You want columns shown in the exact order _time, user, action. Which command?", "options": ["rename _time user action", "fields _time user action", "table _time user action", "dedup _time user action"], "correctIndex": 2, "hint": "Formatting columns.", "correctExplanation": "table displays the listed fields as columns in the order given. fields controls which fields are kept but doesn't lay out a table.", "wrongExplanation": "Answer: table _time user action. Column order → table."}, {"question": "[2 · Basic Searching] It is 14:35. You run a search with earliest=-2h@h. When does the search start?", "options": ["13:00", "12:00", "12:35", "14:00"], "correctIndex": 1, "hint": "Go back 2 hours first, then snap down.", "correctExplanation": "-2h from 14:35 = 12:35. @h snaps down to the start of that hour = 12:00.", "wrongExplanation": "Answer: 12:00. Offset first, then @ rounds DOWN: 12:35 → 12:00."}, {"question": "[4 · Search Language Fundamentals] When sorting on multiple fields, what goes between the field names?", "options": ["A semicolon", "The keyword AND", "A pipe", "A comma"], "correctIndex": 3, "hint": "sort -count, host", "correctExplanation": "Separate multiple sort fields with commas, e.g. sort -count, +host.", "wrongExplanation": "Answer: A comma. Comma between sort fields."}, {"question": "[3 · Using Fields in Searches] Which three fields are the default Selected Fields?", "options": ["host, source, sourcetype", "_raw, _time, host", "host, index, _time", "source, sourcetype, index"], "correctIndex": 0, "hint": "Shown under every event by default.", "correctExplanation": "The default Selected Fields are host, source and sourcetype.", "wrongExplanation": "Answer: host, source, sourcetype. Selected = host, source, sourcetype."}, {"question": "[6 · Creating Reports and Dashboards] Which searches can be saved as a report?", "options": ["Only searches with a transforming command", "Only scheduled searches", "Any search", "Only searches that produce a chart"], "correctIndex": 2, "hint": "Your class lesson says it directly.", "correctExplanation": "Any search (or pivot) can be saved as a report. Save As → Report.", "wrongExplanation": "Answer: Any search. ANY search can be a report."}, {"question": "[2 · Basic Searching] You run index=web | stats count by status in SMART mode. What do you get?", "options": ["A statistics table, with no event list or timeline", "An error, because Smart mode can't run stats", "Only the raw events", "The full event list plus a statistics table"], "correctIndex": 0, "hint": "Smart behaves like Fast for transforming searches.", "correctExplanation": "For a transforming search, Smart mode works like Fast: it returns the statistics/visualization without building the event list. Verbose would also return the events.", "wrongExplanation": "Answer: A statistics table, with no event list or timeline. Smart + transforming = stats only. Verbose = stats + events."}, {"question": "[7 · Creating and Using Lookups] Which lookup type can NOT be written to with outputlookup?", "options": ["They can all be written to", "External (scripted)", "KV Store", "CSV"], "correctIndex": 1, "hint": "It's populated by a script.", "correctExplanation": "External lookups run a Python script or binary. outputlookup writes only to CSV lookup files or KV Store collections.", "wrongExplanation": "Answer: External (scripted). No outputlookup for external lookups."}, {"question": "[2 · Basic Searching] You need events that contain the words failed AND password anywhere in the event, in any order. Which search is correct?", "options": ["index=security failed password", "index=security failed OR password", "index=security \"failed password\"", "index=security failed NOT password"], "correctIndex": 0, "hint": "Which Boolean is implied between terms?", "correctExplanation": "AND is implied between search terms, so 'failed password' means failed AND password anywhere. Quotes would require the exact phrase in that order.", "wrongExplanation": "Answer: index=security failed password. Space = implied AND. Quotes = exact phrase."}, {"question": "[7 · Creating and Using Lookups] Which command shows the contents of the lookup table file products.csv?", "options": ["| table products.csv", "| outputlookup products.csv", "| inputlookup products.csv", "| lookup products.csv"], "correctIndex": 2, "hint": "Input = read.", "correctExplanation": "inputlookup reads and displays a lookup table. outputlookup WRITES results to one. lookup enriches events.", "wrongExplanation": "Answer: | inputlookup products.csv. inputlookup = read, outputlookup = write, lookup = enrich."}, {"question": "[1 · Splunk Basics] Which component receives raw data, breaks it into events, timestamps it, and stores it in time-based buckets?", "options": ["Deployment server", "Universal forwarder", "Indexer", "Search head"], "correctIndex": 2, "hint": "Where is data stored?", "correctExplanation": "Indexers parse incoming data into events, assign timestamps and metadata, and store it in indexes organized as time-based buckets.", "wrongExplanation": "Answer: Indexer. Indexer = parse, timestamp, store (buckets). Search head = UI."}, {"question": "[2 · Basic Searching] You click and drag across several bars in the timeline. What happens?", "options": ["The timeline switches to Log scale", "The selection is saved as a report", "A new search runs over the selected time", "The current results are filtered to that time span, without running a new search"], "correctIndex": 3, "hint": "Selecting vs zooming.", "correctExplanation": "Selecting bars only filters the events already returned. Zoom to selection and Zoom out are what re-run the search.", "wrongExplanation": "Answer: The current results are filtered to that time span, without running a new search. Select bars = filter only. Zoom = new search."}, {"question": "[6 · Creating Reports and Dashboards] When adding a report to a dashboard, you want later changes to the report to show up on the dashboard automatically. Which 'Panel Powered By' option?", "options": ["Inline Search", "Report", "Clone", "Prebuilt panel"], "correctIndex": 1, "hint": "Linked vs copied.", "correctExplanation": "Powered by Report links the panel to the report. Inline Search copies the search string and time range into the dashboard, with no link.", "wrongExplanation": "Answer: Report. Report = linked. Inline = copy."}, {"question": "[5 · Using Basic Transforming Commands] | top limit=0 product_name returns…", "options": ["All values of product_name", "The top 10 values", "No results", "Only the single most common value"], "correctIndex": 0, "hint": "Zero means no limit.", "correctExplanation": "limit=0 returns every value.", "wrongExplanation": "Answer: All values of product_name. limit=0 = all."}, {"question": "[2 · Basic Searching] Which tool shows a search job's execution costs and properties, to figure out why it was slow?", "options": ["Search Job Inspector", "Data Summary", "Patterns tab", "Field window"], "correctIndex": 0, "hint": "Job → Inspect Job.", "correctExplanation": "Job → Inspect Job opens the Search Job Inspector, with execution costs and job properties.", "wrongExplanation": "Answer: Search Job Inspector. Why slow? → Search Job Inspector."}, {"question": "[6 · Creating Reports and Dashboards] A report is shared with the app. Viewers should see data that only the report's creator can normally search. Which setting?", "options": ["Run As: User", "Read: Everyone only", "Run As: Owner", "Display For: Owner"], "correctIndex": 2, "hint": "Whose permissions does the search use?", "correctExplanation": "Run As Owner runs the report with the creator's permissions and data access. It's also the default.", "wrongExplanation": "Answer: Run As: Owner. Run As Owner = creator's access (default). User = viewer's access."}, {"question": "[5 · Using Basic Transforming Commands] How do you remove the percent column from top's output?", "options": ["percent=off", "showpercent=f", "nopercent=true", "showperc=false"], "correctIndex": 3, "hint": "show…", "correctExplanation": "showperc=false hides the percent column. showcount=false hides the count. countfield= / percentfield= rename them.", "wrongExplanation": "Answer: showperc=false. showperc=false / showcount=false."}, {"question": "[1 · Splunk Basics] An analyst writes SPL in a browser, and the request is sent to several indexers whose results are merged into one result set. Which component does the sending and merging?", "options": ["Indexer", "Heavy forwarder", "Universal forwarder", "Search head"], "correctIndex": 3, "hint": "It's the component with the user interface.", "correctExplanation": "The search head is the UI. It distributes searches to the indexers and merges (reduces) their partial results.", "wrongExplanation": "Answer: Search head. Search head = UI, distributes the search, merges the results."}, {"question": "[1 · Splunk Basics] Which statement correctly describes apps and add-ons?", "options": ["Apps can only come from Splunk; add-ons only from third parties", "Add-ons always include dashboards; apps never do", "An app usually gives a UI/workspace for a use case; an add-on usually supplies inputs and parsing for a data source", "Apps and add-ons are both types of indexes"], "correctIndex": 2, "hint": "Which one usually has no UI?", "correctExplanation": "Apps are collections of config files, knowledge objects and UI for a use case (e.g. Search & Reporting). Add-ons are reusable components such as data inputs, parsing and field extractions, usually with no UI. Both come from Splunk or third parties via Splunkbase.", "wrongExplanation": "Answer: An app usually gives a UI/workspace for a use case; an add-on usually supplies inputs and parsing for a data source. App = workspace/UI. Add-on = inputs/parsing, usually no UI."}, {"question": "[6 · Creating Reports and Dashboards] What is Pivot?", "options": ["A dashboard input", "A drag-and-drop tool for building reports on a dataset without writing SPL", "A command that rotates table columns", "A type of lookup"], "correctIndex": 1, "hint": "No SPL needed.", "correctExplanation": "Pivot lets you report on a dataset (data model) with a drag-and-drop interface instead of SPL.", "wrongExplanation": "Answer: A drag-and-drop tool for building reports on a dataset without writing SPL. Pivot = reports without SPL."}, {"question": "[8 · Scheduled Reports and Alerts] What does throttling an alert do?", "options": ["Makes the search run faster", "Deletes old triggered alerts", "Suppresses repeat triggers for a set period", "Limits the number of results returned"], "correctIndex": 2, "hint": "Suppress.", "correctExplanation": "Throttling suppresses the alert from firing again for a set time, optionally per field value.", "wrongExplanation": "Answer: Suppresses repeat triggers for a set period. Throttle = suppress repeats."}, {"question": "[5 · Using Basic Transforming Commands] Which is a list of valid stats functions?", "options": ["top, rare, rename", "count, dc, sum, avg, values", "count, add, less, more", "sum, table, dedup"], "correctIndex": 1, "hint": "Which list is all functions?", "correctExplanation": "Valid stats functions include count, dc, sum, avg, min, max, median, stdev, values, list. table, dedup, top, rare and rename are commands, not functions.", "wrongExplanation": "Answer: count, dc, sum, avg, values. Functions vs commands."}, {"question": "[4 · Search Language Fundamentals] After | rename clientip AS \"Client IP\", how must later commands refer to the field?", "options": ["Either name works", "Client_IP", "clientip", "\"Client IP\""], "correctIndex": 3, "hint": "The old name no longer exists in the pipeline.", "correctExplanation": "After rename, use the new name, in quotes if it contains a space. The rename lasts only for this search.", "wrongExplanation": "Answer: \"Client IP\". Use the NEW name afterwards."}, {"question": "[6 · Creating Reports and Dashboards] On a Classic dashboard, you click the Export button at the top right. Which format do you get?", "options": ["JSON", "CSV", "Any of PDF, CSV, XML, JSON", "PDF only"], "correctIndex": 3, "hint": "Whole dashboard vs single panel.", "correctExplanation": "Per the course, exporting a whole Classic dashboard supports PDF only (Export PDF / Print). Exporting a single panel's data supports PDF, CSV, XML and JSON. (Dashboard Studio can also download PNG.)", "wrongExplanation": "Answer: PDF only. Dashboard export = PDF. Panel export = PDF/CSV/XML/JSON."}, {"question": "[5 · Using Basic Transforming Commands] What must a search contain before Splunk can show it as a column or pie chart?", "options": ["A transforming command such as stats, chart, timechart, top or rare", "The table command and an index", "A lookup", "An eval command"], "correctIndex": 0, "hint": "Charts need a statistics table.", "correctExplanation": "Visualizations need data transformed into a statistics table (one or more data series). Transforming commands do that.", "wrongExplanation": "Answer: A transforming command such as stats, chart, timechart, top or rare. Charts need a transforming command."}, {"question": "[4 · Search Language Fundamentals] What does the pipe character | do in a search?", "options": ["Means OR", "Separates two independent searches", "Starts a comment", "Passes the results of the command on its left into the command on its right"], "correctIndex": 3, "hint": "Pipeline.", "correctExplanation": "Each command's output becomes the next command's input. Splunk processes the pipeline left to right.", "wrongExplanation": "Answer: Passes the results of the command on its left into the command on its right. | = output → input."}, {"question": "[7 · Creating and Using Lookups] Your lookup table is very large and updated many times a day. Which lookup type does Splunk recommend?", "options": ["KV Store", "CSV", "External", "Geospatial"], "correctIndex": 0, "hint": "CSV is for small, static data.", "correctExplanation": "KV Store lookups suit large or frequently updated tables. CSV lookups are best for small, relatively static data.", "wrongExplanation": "Answer: KV Store. Big/changing → KV Store. Small/static → CSV."}, {"question": "[4 · Search Language Fundamentals] Which command keeps only ONE event per user?", "options": ["dedup user", "table user", "rename user", "sort user"], "correctIndex": 0, "hint": "Removes duplicates.", "correctExplanation": "dedup removes events with duplicate values in the listed fields and keeps the first one found (the most recent, for a normal search).", "wrongExplanation": "Answer: dedup user. One per value → dedup."}, {"question": "[2 · Basic Searching] Which timeline action changes the Time Range Picker and searches a wider time range?", "options": ["Zoom out", "Hovering over a bar", "Selecting bars", "Deselect"], "correctIndex": 0, "hint": "Selecting only filters what you already have.", "correctExplanation": "Splunk's docs: zooming out \"changes not only the timeline but the value in the Time Range Picker\", so a wider range is searched. Selecting bars (and Deselect) only filter the existing results; hovering just shows the count.", "wrongExplanation": "Answer: Zoom out. Zoom out = wider time range (new search). Selecting bars = filter only."}, {"question": "[4 · Search Language Fundamentals] Where should | fields + be placed to improve performance the most?", "options": ["Right after the base search", "At the very end", "Only inside a subsearch", "Before the index"], "correctIndex": 0, "hint": "Filter early.", "correctExplanation": "Using fields + early limits the fields that later commands have to carry and extract, which makes the search faster.", "wrongExplanation": "Answer: Right after the base search. fields + early = faster."}, {"question": "[5 · Using Basic Transforming Commands] Which command builds a chart with _time ALWAYS on the x-axis?", "options": ["chart", "stats", "top", "timechart"], "correctIndex": 3, "hint": "The name says it.", "correctExplanation": "timechart always puts _time on the x-axis. chart can use any field.", "wrongExplanation": "Answer: timechart. timechart = time on x-axis."}, {"question": "[2 · Basic Searching] In a time modifier, which unit means MONTHS?", "options": ["m", "mo", "M", "mon"], "correctIndex": 3, "hint": "The single letter is already taken.", "correctExplanation": "m = minutes. mon = months. Other units: s, h, d, w, y.", "wrongExplanation": "Answer: mon. m = minutes, mon = months."}, {"question": "[2 · Basic Searching] You run an ad hoc search and click the Export button. Which format is NOT offered?", "options": ["JSON", "PDF", "XML", "CSV"], "correctIndex": 1, "hint": "The four are Raw Events, CSV, XML, JSON.", "correctExplanation": "For ad hoc searches, Splunk's docs list Raw Events, CSV, XML and JSON. PDF export is only available for saved searches (reports) and dashboards.", "wrongExplanation": "Answer: PDF. Ad hoc export: Raw Events, CSV, XML, JSON. PDF = reports/dashboards only."}, {"question": "[8 · Scheduled Reports and Alerts] Which is NOT one of the four actions a scheduled report can trigger (per the Splunk Core User course)?", "options": ["Add to Triggered Alerts", "Send email", "Write results to a CSV lookup", "Webhook"], "correctIndex": 0, "hint": "Lesson 200.6: email, CSV lookup, webhook, log event.", "correctExplanation": "Scheduled reports can send email, write to a CSV lookup, call a webhook, or log events. Add to Triggered Alerts is an alert action.", "wrongExplanation": "Answer: Add to Triggered Alerts. Scheduled report actions: email, CSV lookup, webhook, log event."}, {"question": "[8 · Scheduled Reports and Alerts] A failed-login alert sent 150 emails in one run. The team still wants an email, just fewer. What fixes it?", "options": ["Disable the alert", "Change the trigger from 'For each result' to 'Once'", "Run the alert more often", "Change the action to webhook"], "correctIndex": 1, "hint": "One email per run vs one per result.", "correctExplanation": "'For each result' sends an action per result. 'Once' sends one per run. Throttling would also cut repeats.", "wrongExplanation": "Answer: Change the trigger from 'For each result' to 'Once'. Too many emails → Trigger: Once (and/or throttle)."}, {"question": "[2 · Basic Searching] A search over 'All time' is very slow. You know the incident happened in the last hour. What is the easiest and most effective fix?", "options": ["Remove the index from the search", "Add a wildcard to every search term", "Switch to Verbose mode", "Set the time range to Last 60 minutes"], "correctIndex": 3, "hint": "Splunk's #1 optimization tip.", "correctExplanation": "Narrowing the time range is the easiest and most effective way to optimize a search, because Splunk skips buckets outside the range.", "wrongExplanation": "Answer: Set the time range to Last 60 minutes. Best optimization = narrow the time range."}, {"question": "[8 · Scheduled Reports and Alerts] What happens to a report's Time Range Picker when you schedule the report?", "options": ["It is required to schedule", "It is removed; the report shows its last scheduled results", "It becomes a cron expression", "It stays and controls the schedule"], "correctIndex": 1, "hint": "Scheduled reports show stored results.", "correctExplanation": "Scheduling a report removes its time picker. The report displays the results of its most recent scheduled run.", "wrongExplanation": "Answer: It is removed; the report shows its last scheduled results. Scheduling removes the time picker."}];
+        const totalQuestions = questions.length;
+        let currentQuestionIndex = 0;
+        let userAnswers = []; // Store user's answers {questionIndex, selectedIndex, isCorrect}
+        let isReviewMode = false;
+
+        function renderMath(target) {
+            return; // math rendering off: no formulas in Splunk content, and KaTeX mangled ( ) and [ ]
+            if (!target || typeof renderMathInElement !== 'function') return;
+            renderMathInElement(target, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\(', right: '\)', display: false},
+                    {left: '\[', right: '\]', display: true}
+                ],
+                throwOnError: false
+            });
+        }
+
+        function initQuiz() {
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const quizContent = document.getElementById('quiz-content');
+            const question = questions[currentQuestionIndex];
+            const userAnswer = userAnswers[currentQuestionIndex];
+
+            const isAnswered = userAnswer !== undefined;
+
+            // Determine button states
+            const showPrevious = currentQuestionIndex > 0;
+            const showNext = isAnswered && currentQuestionIndex < totalQuestions - 1;
+            const showFinish = isAnswered && currentQuestionIndex === totalQuestions - 1 && !isReviewMode;
+            const showFinishReview = isReviewMode && currentQuestionIndex === totalQuestions - 1;
+            const showHint = !!question.hint;
+
+            let optionsHtml = '';
+            question.options.forEach((option, index) => {
+                const letter = String.fromCharCode(65 + index); // A, B, C, D
+
+                if (isAnswered) {
+                    if (index === question.correctIndex) {
+                        const correctExplain = question.correctExplanation || question.explanation || '';
+                        optionsHtml += `
+                            <div class="feedback-card correct show">
+                                <div class="feedback-answer">${letter}. ${option}</div>
+                                <div class="feedback-header correct">
+                                    <span class="feedback-icon">✓</span>
+                                    <span>Right answer</span>
+                                </div>
+                                <div class="feedback-text">${correctExplain}</div>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    if (!userAnswer.isCorrect && index === userAnswer.selectedIndex) {
+                        const wrongExplain = question.wrongExplanation || question.explanation || '';
+                        optionsHtml += `
+                            <div class="feedback-card wrong show">
+                                <div class="feedback-answer">${letter}. ${option}</div>
+                                <div class="feedback-header wrong">
+                                    <span class="feedback-icon">✕</span>
+                                    <span>Not quite</span>
+                                </div>
+                                <div class="feedback-text">${wrongExplain}</div>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    optionsHtml += `
+                        <div class="option disabled" data-index="${index}">
+                            <span class="option-label">${letter}.</span>
+                            <span class="option-text">${option}</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const optionClass = index === (userAnswer ? userAnswer.selectedIndex : -1) ? 'option selected' : 'option';
+                optionsHtml += `
+                    <div class="${optionClass}" onclick="selectAnswer(${index})" data-index="${index}">
+                        <span class="option-label">${letter}.</span>
+                        <span class="option-text">${option}</span>
+                    </div>
+                `;
+            });
+
+            let hintHtml = '';
+            if (showHint) {
+                hintHtml = `
+                    <button class="hint-toggle" id="hint-toggle" onclick="toggleHint()">
+                        <span>Hint</span>
+                        <span class="chevron">⌃</span>
+                    </button>
+                    <div id="hint-panel" class="hint-panel">
+                        <div class="hint-title">Hint</div>
+                        <div class="hint-text">${question.hint}</div>
+                    </div>
+                `;
+            }
+
+            let buttonsHtml = `
+                <div class="quiz-footer">
+                    <div class="buttons">
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-secondary" onclick="previousQuestion()" ${showPrevious ? '' : 'disabled'}>
+                                Previous
+                            </button>
+                        </div>
+                        <div>
+                            ${showNext ? '<button class="btn btn-primary" onclick="nextQuestion()">Next</button>' : ''}
+                            ${showFinish ? '<button class="btn btn-primary" onclick="finishQuiz()">Finish Quiz</button>' : ''}
+                            ${showFinishReview ? '<button class="btn btn-primary" onclick="finishReview()">Finish Review</button>' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            quizContent.innerHTML = `
+                <div class="progress-text">${currentQuestionIndex + 1} / ${totalQuestions}</div>
+                <div class="question-text">${question.question}</div>
+                <div class="options">
+                    ${optionsHtml}
+                </div>
+                <div class="hint-slot">
+                    ${hintHtml}
+                </div>
+                ${buttonsHtml}
+            `;
+            renderMath(quizContent);
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedIndex === question.correctIndex;
+
+            // Store the answer
+            userAnswers[currentQuestionIndex] = {
+                questionIndex: currentQuestionIndex,
+                selectedIndex: selectedIndex,
+                isCorrect: isCorrect
+            };
+
+            // Re-render to show feedback
+            renderQuestion();
+        }
+
+        function toggleHint() {
+            const hintPanel = document.getElementById('hint-panel');
+            const hintToggle = document.getElementById('hint-toggle');
+            if (hintPanel) {
+                hintPanel.classList.toggle('show');
+            }
+            if (hintToggle) {
+                hintToggle.classList.toggle('open');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            showCompletionScreen();
+        }
+
+        function showCompletionScreen() {
+            const quizContent = document.getElementById('quiz-content');
+            const completionScreen = document.getElementById('completion-screen');
+
+            // Calculate stats
+            const answeredQuestions = userAnswers.filter(a => a !== undefined);
+            const correctAnswers = userAnswers.filter(a => a && a.isCorrect).length;
+            const wrongAnswers = userAnswers.filter(a => a && !a.isCorrect).length;
+            const skipped = totalQuestions - answeredQuestions.length;
+            const accuracy = answeredQuestions.length > 0
+                ? Math.round((correctAnswers / answeredQuestions.length) * 100)
+                : 0;
+
+            // Update stats
+            document.getElementById('score-value').textContent = `${correctAnswers}/${totalQuestions}`;
+            document.getElementById('accuracy-value').textContent = `${accuracy}%`;
+            document.getElementById('right-value').textContent = correctAnswers;
+            document.getElementById('wrong-value').textContent = wrongAnswers;
+            document.getElementById('skipped-value').textContent = skipped;
+
+            // Show completion screen
+            quizContent.style.display = 'none';
+            completionScreen.classList.add('show');
+        }
+
+        function reviewQuiz() {
+            isReviewMode = true;
+            currentQuestionIndex = 0;
+            const quizContent = document.getElementById('quiz-content');
+            const completionScreen = document.getElementById('completion-screen');
+
+            quizContent.style.display = 'block';
+            completionScreen.classList.remove('show');
+            renderQuestion();
+        }
+
+        function finishReview() {
+            showCompletionScreen();
+        }
+
+        function retakeQuiz() {
+            isReviewMode = false;
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            const quizContent = document.getElementById('quiz-content');
+            const completionScreen = document.getElementById('completion-screen');
+
+            quizContent.style.display = 'block';
+            completionScreen.classList.remove('show');
+            renderQuestion();
+        }
+
+        // Initialize quiz on page load
+        initQuiz();
+    </script>
+</body>
+</html>
